@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Character ID Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #1a1a1a;
+            border: 2px solid #ff0000;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(255,0,0,0.3);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #ff0000;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(255,0,0,0.5);
+        }
+
+        .header p {
+            color: #cccccc;
+            font-size: 1.1rem;
+        }
+
+        .id-card {
+            background: linear-gradient(135deg, #2a0000 0%, #1a0000 100%);
+            color: white;
+            border: 2px solid #ff0000;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(255,0,0,0.4);
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .photo-section {
+            text-align: center;
+        }
+
+        .character-photo {
+            width: 180px;
+            height: 180px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 4px solid #ff0000;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .character-photo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255,0,0,0.6);
+        }
+
+        .photo-loading {
+            width: 180px;
+            height: 180px;
+            border-radius: 10px;
+            background: rgba(255,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border: 4px solid #ff0000;
+            color: #cccccc;
+        }
+
+        .info-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .info-group h3 {
+            color: #ff0000;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255,0,0,0.5);
+            padding-bottom: 5px;
+            text-shadow: 0 0 5px rgba(255,0,0,0.3);
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 5px 0;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #ff6666;
+        }
+
+        .info-value {
+            color: white;
+        }
+
+        .id-number {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff0000;
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid #ff0000;
+            border-radius: 8px;
+            text-shadow: 0 0 10px rgba(255,0,0,0.5);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            color: white;
+            border: 2px solid #ff0000;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255,0,0,0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(255,0,0,0.6);
+            background: linear-gradient(135deg, #ff3333 0%, #ff0000 100%);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .id-card {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .info-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+                color: #ff0000;
+            }
+            
+            .header p {
+                color: #cccccc;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Game Character Generator</h1>
+            <p>Generate unique character profiles for your game</p>
+        </div>
+
+        <div id="idCard" class="id-card">
+            <div class="photo-section">
+                <div id="photoContainer">
+                    <div class="photo-loading">Loading Photo...</div>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-group">
+                    <h3>Personal Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value" id="fullName">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Age:</span>
+                        <span class="info-value" id="age">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Date of Birth:</span>
+                        <span class="info-value" id="dob">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Nationality:</span>
+                        <span class="info-value" id="nationality">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Occupation:</span>
+                        <span class="info-value" id="occupation">-</span>
+                    </div>
+                </div>
+                
+                <div class="info-group">
+                    <h3>Character Details</h3>
+                    <div class="info-item">
+                        <span class="info-label">Height:</span>
+                        <span class="info-value" id="height">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Eye Color:</span>
+                        <span class="info-value" id="eyeColor">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Hair Color:</span>
+                        <span class="info-value" id="hairColor">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Blood Type:</span>
+                        <span class="info-value" id="bloodType">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Skill Level:</span>
+                        <span class="info-value" id="skillLevel">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="id-number">
+                ID: <span id="idNumber">-</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="generateCharacter()">Generate New Character</button>
+            <button class="btn" onclick="refreshPhoto()">New Photo</button>
+            <button class="btn" onclick="saveCharacter()">Save Character</button>
+        </div>
+    </div>
+
+    <script>
+        const firstNames = [
+            "James", "Mary", "John", "Patricia", "Robert", "Jennifer", "Michael", "Linda", "William", "Elizabeth",
+            "David", "Barbara", "Richard", "Susan", "Joseph", "Jessica", "Thomas", "Sarah", "Christopher", "Karen",
+            "Charles", "Nancy", "Daniel", "Lisa", "Matthew", "Betty", "Anthony", "Helen", "Mark", "Sandra",
+            "Donald", "Donna", "Steven", "Carol", "Paul", "Ruth", "Andrew", "Sharon", "Joshua", "Michelle",
+            "Kenneth", "Laura", "Kevin", "Sarah", "Brian", "Kimberly", "George", "Deborah", "Edward", "Dorothy",
+            "Ronald", "Lisa", "Timothy", "Nancy", "Jason", "Karen", "Jeffrey", "Betty", "Ryan", "Helen",
+            "Jacob", "Sandra", "Gary", "Donna", "Nicholas", "Carol", "Eric", "Ruth", "Jonathan", "Sharon",
+            "Stephen", "Michelle", "Larry", "Laura", "Justin", "Sarah", "Scott", "Kimberly", "Brandon", "Deborah",
+            "Benjamin", "Dorothy", "Samuel", "Amy", "Gregory", "Angela", "Alexander", "Ashley", "Patrick", "Brenda",
+            "Alexander", "Emma", "Jack", "Olivia", "Henry", "Sophia", "Owen", "Isabella", "Ryan", "Mia",
+            "Connor", "Charlotte", "Caleb", "Amelia", "Nathan", "Harper", "Lucas", "Evelyn", "Noah", "Abigail",
+            "Mason", "Emily", "Ethan", "Elizabeth", "Logan", "Mila", "Jacob", "Ella", "William", "Avery",
+            "James", "Sofia", "Benjamin", "Camila", "Elijah", "Aria", "Oliver", "Scarlett", "Lucas", "Victoria",
+            "Michael", "Madison", "Alexander", "Luna", "Ethan", "Grace", "Daniel", "Chloe", "Matthew", "Penelope",
+            "Aiden", "Layla", "Henry", "Riley", "Joseph", "Zoey", "Jackson", "Nora", "Samuel", "Lily",
+            "Sebastian", "Eleanor", "David", "Hannah", "Carter", "Lillian", "Wyatt", "Addison", "Jayden", "Aubrey",
+            "John", "Ellie", "Owen", "Stella", "Dylan", "Natalie", "Luke", "Zoe", "Gabriel", "Leah",
+            "Anthony", "Hazel", "Isaac", "Violet", "Grayson", "Aurora", "Jack", "Savannah", "Julian", "Audrey",
+            "Levi", "Brooklyn", "Christopher", "Bella", "Joshua", "Claire", "Andrew", "Skylar", "Lincoln", "Lucy",
+            "Mateo", "Paisley", "Ryan", "Everly", "Jaxon", "Anna", "Nathan", "Caroline", "Aaron", "Nova"
+        ];
+
+        const lastNames = [
+            "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
+            "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin",
+            "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson",
+            "Walker", "Young", "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores",
+            "Green", "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell", "Carter", "Roberts",
+            "Gomez", "Phillips", "Evans", "Turner", "Diaz", "Parker", "Cruz", "Edwards", "Collins", "Reyes",
+            "Stewart", "Morris", "Morales", "Murphy", "Cook", "Rogers", "Gutierrez", "Ortiz", "Morgan", "Cooper",
+            "Peterson", "Bailey", "Reed", "Kelly", "Howard", "Ramos", "Kim", "Cox", "Ward", "Richardson",
+            "Watson", "Brooks", "Chavez", "Wood", "James", "Bennett", "Gray", "Mendoza", "Ruiz", "Hughes",
+            "Price", "Alvarez", "Castillo", "Sanders", "Patel", "Myers", "Long", "Ross", "Foster", "Jimenez",
+            "Powell", "Jenkins", "Perry", "Russell", "Sullivan", "Bell", "Coleman", "Butler", "Henderson", "Barnes",
+            "Gonzales", "Fisher", "Vasquez", "Simmons", "Romero", "Jordan", "Patterson", "Alexander", "Hamilton", "Graham",
+            "Reynolds", "Griffin", "Wallace", "Moreno", "West", "Cole", "Hayes", "Bryant", "Herrera", "Gibson",
+            "Ellis", "Tran", "Medina", "Aguilar", "Stevens", "Murray", "Ford", "Castro", "Marshall", "Owens",
+            "Harrison", "Fernandez", "Mcdonald", "Woods", "Washington", "Kennedy", "Wells", "Vargas", "Henry", "Chen",
+            "Freeman", "Webb", "Tucker", "Guzman", "Burns", "Crawford", "Olson", "Simpson", "Porter", "Hunter",
+            "Gordon", "Mendez", "Silva", "Shaw", "Snyder", "Mason", "Dixon", "Munoz", "Hunt", "Hicks",
+            "Holmes", "Palmer", "Wagner", "Black", "Robertson", "Boyd", "Rose", "Stone", "Salazar", "Fox",
+            "Warren", "Mills", "Meyer", "Rice", "Schmidt", "Garza", "Daniels", "Ferguson", "Nichols", "Stephens",
+            "Soto", "Weaver", "Ryan", "Gardner", "Payne", "Grant", "Dunn", "Kelley", "Spencer", "Hawkins"
+        ];
+
+        const nationalities = [
+            "American", "Canadian", "British", "Australian", "German", "French", "Italian", "Spanish", "Japanese", "Korean",
+            "Chinese", "Indian", "Brazilian", "Mexican", "Russian", "Dutch", "Swedish", "Norwegian", "Danish", "Finnish",
+            "Polish", "Czech", "Hungarian", "Austrian", "Swiss", "Belgian", "Portuguese", "Greek", "Turkish", "Irish",
+            "Scottish", "Welsh", "South African", "Egyptian", "Moroccan", "Nigerian", "Kenyan", "Thai", "Vietnamese", "Filipino"
+        ];
+
+        const occupations = [
+            "Software Developer", "Teacher", "Doctor", "Nurse", "Engineer", "Artist", "Writer", "Chef", "Mechanic", "Lawyer",
+            "Accountant", "Architect", "Designer", "Musician", "Athlete", "Scientist", "Police Officer", "Firefighter", "Pilot", "Photographer",
+            "Journalist", "Veterinarian", "Dentist", "Pharmacist", "Electrician", "Plumber", "Carpenter", "Baker", "Barista", "Waiter",
+            "Sales Representative", "Marketing Manager", "HR Specialist", "Librarian", "Translator", "Social Worker", "Psychologist", "Therapist", "Counselor", "Coach"
+        ];
+
+        const eyeColors = ["Brown", "Blue", "Green", "Hazel", "Gray", "Amber", "Violet"];
+        const hairColors = ["Black", "Brown", "Blonde", "Red", "Auburn", "Gray", "White", "Dark Brown", "Light Brown"];
+        const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+        const skillLevels = ["Beginner", "Novice", "Intermediate", "Advanced", "Expert", "Master", "Legendary"];
+
+        let currentCharacter = null;
+
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function generateRandomDate(start, end) {
+            return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        function calculateAge(birthDate) {
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        function generateHeight() {
+            const feet = Math.floor(Math.random() * 2) + 5; // 5-6 feet
+            const inches = Math.floor(Math.random() * 12); // 0-11 inches
+            const cm = Math.round((feet * 12 + inches) * 2.54);
+            return `${feet}'${inches}" (${cm} cm)`;
+        }
+
+        function generateIdNumber() {
+            return Math.random().toString().substr(2, 8).toUpperCase();
+        }
+
+        function loadRandomPhoto() {
+            const photoContainer = document.getElementById('photoContainer');
+            photoContainer.innerHTML = '<div class="photo-loading">Loading Photo...</div>';
+            
+            const img = new Image();
+            img.onload = function() {
+                photoContainer.innerHTML = `<img src="${this.src}" alt="Character Photo" class="character-photo">`;
+            };
+            img.onerror = function() {
+                photoContainer.innerHTML = '<div class="photo-loading">Photo Unavailable</div>';
+            };
+            // Add timestamp to force new image
+            img.src = `https://thispersondoesnotexist.com?timestamp=${Date.now()}`;
+        }
+
+        function generateCharacter() {
+            const firstName = getRandomItem(firstNames);
+            const lastName = getRandomItem(lastNames);
+            const birthDate = generateRandomDate(new Date(1950, 0, 1), new Date(2005, 11, 31));
+            const age = calculateAge(birthDate);
+
+            currentCharacter = {
+                firstName: firstName,
+                lastName: lastName,
+                fullName: `${firstName} ${lastName}`,
+                age: age,
+                dateOfBirth: formatDate(birthDate),
+                nationality: getRandomItem(nationalities),
+                occupation: getRandomItem(occupations),
+                height: generateHeight(),
+                eyeColor: getRandomItem(eyeColors),
+                hairColor: getRandomItem(hairColors),
+                bloodType: getRandomItem(bloodTypes),
+                skillLevel: getRandomItem(skillLevels),
+                idNumber: generateIdNumber()
+            };
+
+            // Update the UI
+            document.getElementById('fullName').textContent = currentCharacter.fullName;
+            document.getElementById('age').textContent = currentCharacter.age;
+            document.getElementById('dob').textContent = currentCharacter.dateOfBirth;
+            document.getElementById('nationality').textContent = currentCharacter.nationality;
+            document.getElementById('occupation').textContent = currentCharacter.occupation;
+            document.getElementById('height').textContent = currentCharacter.height;
+            document.getElementById('eyeColor').textContent = currentCharacter.eyeColor;
+            document.getElementById('hairColor').textContent = currentCharacter.hairColor;
+            document.getElementById('bloodType').textContent = currentCharacter.bloodType;
+            document.getElementById('skillLevel').textContent = currentCharacter.skillLevel;
+            document.getElementById('idNumber').textContent = currentCharacter.idNumber;
+
+            // Load a new photo
+            loadRandomPhoto();
+        }
+
+        function refreshPhoto() {
+            loadRandomPhoto();
+        }
+
+        function saveCharacter() {
+            if (!currentCharacter) {
+                alert('Please generate a character first!');
+                return;
+            }
+
+            const characterData = JSON.stringify(currentCharacter, null, 2);
+            const blob = new Blob([characterData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentCharacter.firstName}_${currentCharacter.lastName}_Character.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Generate initial character when page loads
+        window.addEventListener('load', function() {
+            generateCharacter();
+        });
+    </script>
+</body>
+</html>
